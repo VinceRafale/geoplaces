@@ -12,3 +12,4 @@ gem 'json'
 
 gem 'rb-fsevent'
 gem 'rerun'
+gem 'debugger'

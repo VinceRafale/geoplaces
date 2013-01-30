@@ -1,20 +1,29 @@
 .container-fluid
-  .row-fluid
-    .span7 This is the map
+  #places-map.row-fluid
+    .span7 
+      .well.well-large
+        #map_canvas style='height: 400px'
     .span2
       h2 Places
-      .places
-        - @places.each do |place|
-          .place
-            h3= place['name']
-            address.small= place['address']
-      form action='/places' method='post'
-        fieldset
-          legend Add a place
-          label Name
-          input name='name'
+      ul.places
+script#place-template type='text/template'
+  .view
+    .controls.pull-right
+      i.icon-edit edit
+      i.icon-remove delete
+    h3.name 
+      | <%= name %>
+    address 
+      | <%= address %>
+  .form
+    label Name
+    input.name name='name' value='<%= name %>'
 
-          label Address
-          input name='address'
-
-          button type='submit' class='btn' Add Address
+    label Address
+    textarea.address name='address'
+      | <%= address %>
+    
+    .controls
+      button.btn.btn-primary.submit type='submit' Submit
+      | &nbsp;
+      button.btn.cancel Cancel

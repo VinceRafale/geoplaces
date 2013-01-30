@@ -34,13 +34,31 @@ class Places < Sinatra::Base
   # Routes
   get '/' do
     # login_required
-    @places = Places.find
     slim :index
   end
 
-  post '/places' do
-    puts params
-    # Places.insert {name: 'foo', address: 'bar'}
-    # redirect '/'
+  get '/api/places' do
+    Places.find.to_a.map{|p| from_bson_id(p)}.to_json
   end
+
+  post '/api/places' do
+    Places.insert(params[:place])
+    Places.find('_id' => params[:id])
+  end
+
+  put '/api/places/:id' do
+    data = JSON.parse(request.body.read)
+    Places.update(param_id, {name: data['name'], address: data['address']})
+    Places.find('_id' => params[:id])
+  end
+
+  delete '/api/places/:id' do
+    Places.remove(param_id)
+  end
+
+  def param_id 
+    {'_id' => to_bson_id(params[:id])} 
+  end
+  def to_bson_id(id) BSON::ObjectId(id) end
+  def from_bson_id(obj) obj.merge({'_id' => obj['_id'].to_s}) end
 end
