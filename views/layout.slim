@@ -1,0 +1,13 @@
+doctype html
+html
+  header
+    link href='/bootstrap/css/bootstrap.min.css' rel='stylesheet'
+    link href='/css/base.css' rel='stylesheet'
+  body
+    .navbar.navbar-inverse.navbar-fixed-top
+      .navbar-inner
+        .container
+          a.brand href="/" MyPlaces
+    == yield
+    script src='http://code.jquery.com/jquery-latest.js'
+    script src='bootstrap/js/bootstrap.min.js'
