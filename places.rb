@@ -25,7 +25,6 @@ class Places < Sinatra::Base
   register Sinatra::TwitterOAuth
 
   # Config
-  set :twitter_oauth_config, key: 'VDZOBVgDzckCetx7nhkFqw', secret: 'yELPu6mcpKv37Po1GlRJSiY2nxcc2m18w9Od2UaLzcY'
   set :public_folder, File.dirname(__FILE__) + '/public'
   set :view, File.dirname(__FILE__) + '/templates'
   
