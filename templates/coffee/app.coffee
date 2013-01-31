@@ -1,19 +1,17 @@
-Place = Backbone.Model.extend(
+Place = Backbone.Model.extend
   idAttribute: "_id"
 
   defaults: ->
     name: ''
     address: ''
-  )
 
-PlaceList = Backbone.Collection.extend(
+PlaceList = Backbone.Collection.extend
   model: Place
   url: '/api/places'
-  )
 
 Places = new PlaceList
 
-PlaceView = Backbone.View.extend(
+PlaceView = Backbone.View.extend
   tagName: 'li'
   className: 'place'
   template: _.template($('#place-template').html())
@@ -40,9 +38,8 @@ PlaceView = Backbone.View.extend(
       name: this.$('input.name').val()
       address: this.$('textarea.address').val())
     this.render
-  )
 
-AppView = Backbone.View.extend(
+AppView = Backbone.View.extend
   el: $('#places-map')
 
   initialize: ->
@@ -57,9 +54,8 @@ AppView = Backbone.View.extend(
 
   addAll: ->
     Places.each(this.addPlace)
-  )
 
-App = new AppView
+window.App = new AppView
 
 $ ->
   window.Geocoder = new google.maps.Geocoder()
@@ -68,10 +64,9 @@ $ ->
     navigator.geolocation.getCurrentPosition((position) ->
       window.map.panTo(new google.maps.LatLng(position.coords.latitude, position.coords.longitude))
       window.map.setZoom(16)
-      marker = new google.maps.Marker(
+      marker = new google.maps.Marker
         map: window.map
         position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude))
-      )
   else
     
   mapOptions = 
@@ -80,4 +75,27 @@ $ ->
     center: new google.maps.LatLng(-34.397, 150.644)
   
   window.map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions)
+
+  $('#address-search').autocomplete
+    minLength: 3
+    source: (req, resp) ->
+      window.Geocoder.geocode({address: req.term, bounds: window.map.getBounds()}, (results, status) ->
+        resp(_.map(results, (loc) ->
+          {
+            label: loc.formatted_address
+            value: loc.formatted_address
+            obj: loc
+          })
+        )
+      )
+    select: (event, ui) ->
+      $('#address-search').val('')
+      marker = new google.maps.Marker
+        map: window.map
+        position: ui.item.obj.geometry.location
+        animation: google.maps.Animation.DROP
+      info = new google.maps.InfoWindow
+        content: ui.item.obj.formatted_address.replace(/,/, '<br>')
+      info.open(window.map, marker)
+      window.map.panTo(ui.item.obj.geometry.location)
 
