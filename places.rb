@@ -22,13 +22,16 @@ class Places < Sinatra::Base
 
   include Mongo
 
+  register Sinatra::Partial
   register Sinatra::TwitterOAuth
 
   # Config
   set :public_folder, File.dirname(__FILE__) + '/public'
   set :view, File.dirname(__FILE__) + '/templates'
+  set :partial_template_engine, :slim
   
   Places = MongoClient.new.db('places-db').collection('places')
+  Places.ensure_index([['loc', Mongo::GEO2D]])
 
   # Routes
   get '/' do
@@ -37,22 +40,28 @@ class Places < Sinatra::Base
   end
 
   get '/api/places' do
-    Places.find.to_a.map{|p| from_bson_id(p)}.to_json
+    conditions = params.include?('lon') && params.include?('lat') ? {:loc => {'$near' => [params['lon'].to_f, params['lat'].to_f]}} : {}
+    puts "Finding with #{conditions}"
+    Places.find(conditions).to_a.map{|p| from_bson_id(p)}.to_json
   end
 
   post '/api/places' do
-    Places.insert(params[:place])
-    Places.find('_id' => params[:id])
+    bson_id = Places.insert(to_attr(request.body.read))
+    Places.find('_id' => bson_id.to_s)
   end
 
   put '/api/places/:id' do
-    data = JSON.parse(request.body.read)
-    Places.update(param_id, {name: data['name'], address: data['address']})
+    Places.update(to_attr(request.body.read))
     Places.find('_id' => params[:id])
   end
 
   delete '/api/places/:id' do
     Places.remove(param_id)
+  end
+
+  def to_attr request
+    data = JSON.parse(request)
+    {name: data['name'], address: data['address'], loc: {lon: data['lon'].to_i, lat: data['lat'].to_i}}
   end
 
   def param_id 

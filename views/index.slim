@@ -7,7 +7,8 @@
         #map_canvas style='height: 400px'
     .span2
       h2 Places
-      ul.places
+      #places
+        ul
 script#place-template type='text/template'
   .view
     .controls.pull-right
@@ -17,15 +18,7 @@ script#place-template type='text/template'
       | <%= name %>
     address 
       | <%= address %>
-  .form
-    label Name
-    input.name name='name' value='<%= name %>'
+  == partial :place_form
 
-    label Address
-    textarea.address name='address'
-      | <%= address %>
-    
-    .controls
-      button.btn.btn-primary.submit type='submit' Submit
-      | &nbsp;
-      button.btn.cancel Cancel
+script#new-place-template type='text/template'
+  == partial :place_form

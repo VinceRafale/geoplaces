@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'sinatra', require: 'sinatra/base'
+gem 'sinatra-partial', require: 'sinatra/partial'
 gem 'bson_ext'
 gem 'mongo'
 gem 'twitter_oauth'

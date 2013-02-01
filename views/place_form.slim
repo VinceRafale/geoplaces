@@ -1,0 +1,13 @@
+.form
+  input.lat name='lat' type='hidden' value="<%= loc.lat %>"
+  input.lng name='lon' type='hidden' value="<%= loc.lon %>"
+
+  label Name
+  input.name name='name' value='<%= name %>'
+
+  input.address name="address" value="<%= address %>"
+  
+  .controls
+    button.btn.btn-primary.submit type='submit' Submit
+    | &nbsp;
+    button.btn.cancel Cancel
