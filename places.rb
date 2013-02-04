@@ -41,7 +41,7 @@ class Places < Sinatra::Base
 
   get '/api/places' do
     conditions = params.include?('lon') && params.include?('lat') ? {:loc => {'$near' => [params['lon'].to_f, params['lat'].to_f]}} : {}
-    puts "Finding with #{conditions}"
+    puts "*************\nFinding with #{conditions}\n"
     Places.find(conditions).to_a.map{|p| from_bson_id(p)}.to_json
   end
 
@@ -57,11 +57,12 @@ class Places < Sinatra::Base
 
   delete '/api/places/:id' do
     Places.remove(param_id)
+    response.status = 200
   end
 
   def to_attr request
     data = JSON.parse(request)
-    {name: data['name'], address: data['address'], loc: {lon: data['lon'].to_i, lat: data['lat'].to_i}}
+    {name: data['name'], address: data['address'], loc: {lon: data['loc']['lon'].to_f, lat: data['loc']['lat'].to_f}}
   end
 
   def param_id 

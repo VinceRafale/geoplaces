@@ -1,6 +1,10 @@
 Place = Backbone.Model.extend
   idAttribute: "_id"
-  url: '/api/places'
+  url: ->
+    if this.isNew()
+      '/api/places'
+    else
+      '/api/places/' + this.id
 
   defaults: ->
     name: ''
@@ -13,8 +17,10 @@ PlaceList = Backbone.Collection.extend
   model: Place
   url: '/api/places'
 
-  geoFetch: ->
-    this.fetch {data: {lat: window.map.getCenter().lat(), lon: window.map.getCenter().lon()}}
+  geoFetch: (latitude, longitude)->
+    latitude = window.map.getCenter().lat() if typeof(latitude) == 'undefined'
+    longitude = window.map.getCenter().lng() if typeof(longitude) == 'undefined'
+    this.fetch {data: {lat: latitude, lon: longitude}}
 
 Places = new PlaceList
 
@@ -24,12 +30,14 @@ PlaceView = Backbone.View.extend
   template: _.template($('#place-template').html())
 
   events: 
+    'click .icon-eye-open': 'showOnMap'
     'click .icon-edit': 'edit'
+    'click .icon-remove': 'clear'
     'click .submit': 'updatePlace'
     'click .cancel': 'render'
-    'click .view': 'showOnMap'
 
   initialize: ->
+    this.model.bind('reset', this.render, this)
     this.model.bind('change', this.render, this)
     this.model.bind('destroy', this.remove, this)
 
@@ -41,16 +49,25 @@ PlaceView = Backbone.View.extend
     this.$('.view, .form').fadeToggle(
       duration: 100)
 
-  delete: ->
-    this.model.delete
+  remove: ->
+    $(this.el).remove()
+
+  clear: ->
+    if confirm 'Are you sure?'
+      this.model.destroy 
+        wait: true
+      success: ->
+        window.App.getPlaces()
 
   updatePlace: -> 
     this.model.save
+      wait: true
       name: this.$('input.name').val()
       address: this.$('input.address').val()
       lat: this.$('input.lat').val()
       lon: this.$('input.lon').val()
-    Places.geoFetch
+      success: ->
+        window.App.getPlaces()
 
   showOnMap: ->
     loc = new google.maps.LatLng this.model.get('loc').lat, this.model.get('loc').lon
@@ -73,24 +90,26 @@ AppView = Backbone.View.extend
     Places.bind('reset', this.addAll, this)
     Places.bind('all', this.render, this)
 
-  getPlaces: ->
-    Places.fetch {data: {lat: window.lat, lon: window.lon}}
+  getPlaces: (lat, lng)->
+    Places.geoFetch(lat, lng)
 
   addPlace: (place) ->
     view = new PlaceView({model: place})
-    this.$('#places ul').prepend(view.render().el)
-    view
+    this.$('#places ul').append(view.render().el)
 
   addAll: ->
     Places.each(this.addPlace)
 
   newPlace: (address, lat, lon) ->
-    place = new Place
-      address: address
-      loc:
-        lat: lat
-        lon: lon
-    this.addPlace(place).edit()
+    view = new PlaceView
+      model: new Place
+        address: address
+        loc:
+          lat: lat
+          lon: lon
+    this.$('#places ul').prepend(view.render().el)
+    $('#address-search').val('')
+    view.edit()
 
 window.App = new AppView
 
@@ -101,7 +120,7 @@ $ ->
     navigator.geolocation.getCurrentPosition (position) ->
       window.map.panTo(new google.maps.LatLng(position.coords.latitude, position.coords.longitude))
       window.map.setZoom(16)
-      window.App.getPlaces()
+      window.App.getPlaces(position.coords.latitude, position.coords.longitude)
   else
     # We should do *something*
     
