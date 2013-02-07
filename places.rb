@@ -1,33 +1,15 @@
-class SassHandler < Sinatra::Base
-  set :views, File.dirname(__FILE__) + '/templates/sass'
-
-  get '/css/*.css' do
-    filename = params[:splat].first
-    sass filename.to_sym
-  end
-end
-
-class CoffeeHanlder < Sinatra::Base
-  set :views, File.dirname(__FILE__) + '/templates/coffee'
-
-  get '/js/*.js' do
-    filename = params[:splat].first
-    coffee filename.to_sym
-  end
-end
-
 class Places < Sinatra::Base
-  use SassHandler
-  use CoffeeHanlder
-
   include Mongo
 
   register Sinatra::Partial
   register Sinatra::TwitterOAuth
 
   # Config
-  set :public_folder, File.dirname(__FILE__) + '/public'
-  set :view, File.dirname(__FILE__) + '/templates'
+  Sass::Plugin.options[:style] = :compressed
+  use Sass::Plugin::Rack
+  use Rack::Coffee, root: 'public', urls: '/javascripts'
+
+
   set :partial_template_engine, :slim
   
   Places = MongoClient.new.db('places-db').collection('places')
