@@ -12,7 +12,13 @@ class Places < Sinatra::Base
 
   set :partial_template_engine, :slim
   
-  Places = MongoClient.new.db('places-db').collection('places')
+  ENV["MONGODB_URI"] = if ENV['RACK_ENV'] === 'production' 
+    ENV["MONGOHQ_URL"] 
+  else
+    'mongodb://localhost:27017'
+  end
+  
+  Places = MongoClient.from_uri.db('places-db').collection('places')
   Places.ensure_index([['loc', Mongo::GEO2D]])
 
   # Routes
@@ -23,7 +29,6 @@ class Places < Sinatra::Base
 
   get '/api/places' do
     conditions = params.include?('lon') && params.include?('lat') ? {:loc => {'$near' => [params['lon'].to_f, params['lat'].to_f]}} : {}
-    puts "*************\nFinding with #{conditions}\n"
     Places.find(conditions).to_a.map{|p| from_bson_id(p)}.to_json
   end
 
