@@ -13,7 +13,7 @@ class Places < Sinatra::Base
   set :partial_template_engine, :slim
   
   ENV["MONGODB_URI"] = if ENV['RACK_ENV'] === 'production' 
-    ENV["MONGOHQ_URL"] 
+    ENV["MONGOLAB_URI"] 
   else
     'mongodb://localhost:27017'
   end
