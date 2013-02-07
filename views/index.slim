@@ -10,6 +10,7 @@
       #places
         p#empty-message You have no places saved! Use the search bar above the map to start adding places!
         ul
+
 script#place-template type='text/template'
   .view
     .controls.pull-right
@@ -24,3 +25,5 @@ script#place-template type='text/template'
 
 script#new-place-template type='text/template'
   == partial :place_form
+
+script src='/javascripts/app.js'
