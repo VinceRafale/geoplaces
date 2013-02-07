@@ -14,7 +14,7 @@ class Places < Sinatra::Base
   if ENV['RACK_ENV'] === 'production' 
     ENV["MONGODB_URI"] = ENV["MONGOLAB_URI"] 
     set :database, 'heroku_app11665199'
-    set :host,'geoplaces.herokuapp.com'
+    set :host,'http://geoplaces.herokuapp.com'
   else
     ENV["MONGODB_URI"] = 'mongodb://localhost:27017'
     set :database, 'place-db'
