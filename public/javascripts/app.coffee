@@ -58,6 +58,7 @@ PlaceView = Backbone.View.extend
         wait: true
       success: ->
         window.App.getPlaces()
+        window.App.togglePlacesMessage()
 
   updatePlace: -> 
     this.model.save
@@ -98,6 +99,7 @@ AppView = Backbone.View.extend
     this.$('#places ul').append(view.render().el)
 
   addAll: ->
+    this.togglePlacesMessage()
     Places.each(this.addPlace)
 
   newPlace: (address, lat, lon) ->
@@ -107,9 +109,16 @@ AppView = Backbone.View.extend
         loc:
           lat: lat
           lon: lon
+    $('#empty-message').fadeOut('fast')
     this.$('#places ul').prepend(view.render().el)
     $('#address-search').val('')
     view.edit()
+
+  togglePlacesMessage: ->
+    if Places.isEmpty()
+      $('#empty-message').fadeIn('fast') unless $('#empty-message').is(':visible')
+    else
+      $('#empty-message').fadeOut('fast') unless $('#empty-message').is(':hidden')
 
 window.App = new AppView
 
