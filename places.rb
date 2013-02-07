@@ -12,13 +12,15 @@ class Places < Sinatra::Base
 
   set :partial_template_engine, :slim
   
-  ENV["MONGODB_URI"] = if ENV['RACK_ENV'] === 'production' 
-    ENV["MONGOLAB_URI"] 
+  if ENV['RACK_ENV'] === 'production' 
+    ENV["MONGODB_URI"] = ENV["MONGOLAB_URI"] 
+    database = 'heroku_app11665199'
   else
-    'mongodb://localhost:27017'
+    ENV["MONGODB_URI"] = 'mongodb://localhost:27017'
+    database = 'place-db'
   end
   
-  Places = MongoClient.from_uri.db('places-db').collection('places')
+  Places = MongoClient.from_uri.db(database).collection('places')
   Places.ensure_index([['loc', Mongo::GEO2D]])
 
   # Routes
