@@ -49,16 +49,12 @@ PlaceView = Backbone.View.extend
     this.$('.view, .form').fadeToggle(
       duration: 100)
 
-  remove: ->
-    $(this.el).remove()
-
   clear: ->
     if confirm 'Are you sure?'
       this.model.destroy 
-        wait: true
-      success: ->
-        window.App.getPlaces()
-        window.App.togglePlacesMessage()
+        success: ->
+          window.App.getPlaces()
+          window.App.togglePlacesMessage()
 
   updatePlace: -> 
     this.model.save
